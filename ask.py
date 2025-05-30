@@ -72,27 +72,7 @@ try:
     print(response['message']['content'])
     print("=" * 50)
 
-except Exception as e:
-    print(f"❌ Error: {e}")
-    print("\nTrying alternative connection...")
 
-    # Fallback: try localhost if the IP doesn't work
-    try:
-        import ollama
-
-        response = ollama.chat(
-            model='qwen2.5-coder:7b',
-            messages=[
-                {
-                    'role': 'user',
-                    'content': prompt
-                }
-            ]
-        )
-        print("\n💬 Answer:")
-        print("=" * 50)
-        print(response['message']['content'])
-        print("=" * 50)
-    except Exception as e2:
-        print(f"❌ Both attempts failed: {e2}")
-        print("Please check if Ollama is running: ollama serve")
+except Exception as e2:
+    print(f"❌ model failed")
+    print("Please check if Ollama is running: ollama serve")
