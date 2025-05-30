@@ -1,0 +1,22 @@
+# Environnement virtuel
+.venv/
+venv/
+
+# PyCharm
+.idea/
+
+# Fichiers Python inutiles
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Base de données locale ou fichiers de test
+*.sqlite3
+*.db
