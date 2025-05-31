@@ -4,7 +4,7 @@ from tqdm import tqdm
 import ollama
 
 
-DOC_DIR = "./data"
+DOC_DIR = "./sections"
 IDX_OUT = "index.faiss"
 TEXT_OUT = "passages.json"
 
