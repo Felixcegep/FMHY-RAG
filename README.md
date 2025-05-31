@@ -6,23 +6,23 @@ Un assistant **RAG** (Retrieval-Augmented Generation) local basé sur [Ollama](h
 
 ## ✅ Prérequis
 
-### 🧩 Dépendances système
+### 🧩️ Dépendances système
 
-* **Python 3.9+**
-* **[Ollama](https://ollama.com/download)** installé et fonctionnel
-* **jq**, **curl**, **wget** (inclus sur la plupart des distributions Linux/macOS)
+- **Python 3.9+**
+- **[Ollama](https://ollama.com/download)** installé et fonctionnel
+- **jq**, **curl**, **wget** (inclus sur la plupart des distributions Linux/macOS)
 
 ### 📦 Modules Python
 
 Installe les dépendances Python avec :
 
 ```bash
-pip install faiss-cpu numpy tqdm
+pip install faiss-cpu numpy tqdm flask
 ```
 
 ---
 
-## 🗕️ Téléchargement des modèles Ollama
+## 📅 Téléchargement des modèles Ollama
 
 Avant toute exécution, télécharge les modèles nécessaires :
 
@@ -31,58 +31,56 @@ ollama pull nomic-embed-text
 ollama run artifish/llama3.2-uncensored
 ```
 
-> 🚪 Ouvre Ollama lorsque tu exécutes le programme.
+> 🚪 Ouvre **Ollama** lorsque tu exécutes le programme.
 
 ---
 
 ## ⚙️ Étapes d'installation et d'exécution
 
-1. Clone le dépôt :
+1. **Clone le dépôt :**
 
 ```bash
 git clone https://github.com/Felixcegep/FMHY-RAG.git
 cd FMHY-RAG
 ```
 
-2. Télécharge les fichiers Markdown :
+2. **Télécharge les fichiers Markdown :**
 
-* **Linux/macOS** :
-
+- *Linux/macOS :*
 ```bash
 bash setup/download_docs.sh
 ```
 
-* **Windows (PowerShell)** :
-
+- *Windows (PowerShell) :*
 ```powershell
 .\setup\download_docs.ps1
 ```
 
-3. Découpe les documents en sections :
+3. **Découpe les documents en sections :**
 
-* **Linux/macOS** :
-
+- *Linux/macOS :*
 ```bash
 bash setup/split_all_docs.sh
 ```
 
-* **Windows (PowerShell)** :
-
+- *Windows (PowerShell) :*
 ```powershell
 .\setup\split_all_docs.ps1
 ```
 
-4. Construis l'index FAISS :
+4. **Construit l’index FAISS :**
 
 ```bash
 python build_index.py
 ```
 
-5. Pose ta question :
+5. **Lance l’application web :**
 
 ```bash
-python ask.py "Show me where I can watch Korean dramas."
+python app.py
 ```
+
+Puis ouvre ton navigateur sur 👉 [http://localhost:5000](http://localhost:5000) pour discuter avec le chatbot.
 
 ---
 
@@ -90,7 +88,8 @@ python ask.py "Show me where I can watch Korean dramas."
 
 ```
 .
-├── ask.py                 # Script principal pour poser des questions
+├── app.py                 # Application Flask pour discuter avec le chatbot
+├── ask.py                 # Script CLI pour poser des questions manuellement
 ├── build_index.py         # Indexation vectorielle des chunks
 ├── index.faiss            # Fichier d'index FAISS
 ├── passages.json          # Fichier contenant tous les chunks indexés
@@ -105,16 +104,17 @@ python ask.py "Show me where I can watch Korean dramas."
 
 ---
 
-## 💬 Exemple d'utilisation
+## 💬 Exemple d’utilisation
 
 ```bash
-$ python ask.py "What are the best sites to download audiobooks?"
-✅ Loaded index with 2945 passages
-🔍 Searching for: What are the best sites to download audiobooks?
-📚 Found 6 relevant passages from 4 sources:
-  • Audiobooks_1.md
-  • Audiobooks_2.md
-...
+$ python app.py
 ```
 
+→ Puis pose ta question dans l’interface web, comme :  
+**"Where can I watch Korean dramas?"**
+
 ---
+
+## 🔗 Crédit
+
+Basé sur les contenus du site : [https://fmhy.net/](https://fmhy.net/)
