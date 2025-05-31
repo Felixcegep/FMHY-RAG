@@ -1,45 +1,90 @@
 import sys, json, pathlib, textwrap
-import faiss, numpy as np, requests
+import faiss, numpy as np
 from tqdm import tqdm
 import ollama
+
+if len(sys.argv) < 4:
+    print("Usage: python local_indexer.py <DOC_DIR> <IDX_OUT> <TEXT_OUT>")
+    sys.exit(1)
+
 DOC_DIR, IDX_OUT, TEXT_OUT = sys.argv[1:]
-EMBED_SERVER = "http://192.168.2.241:11434"
+
 
 def emb(txt):
-    res = requests.post(
-        f"{EMBED_SERVER}/api/embeddings",
-        json={"model": "nomic-embed-text", "prompt": txt}
-    )
-    res.raise_for_status()
-    return np.array(res.json()["embedding"], dtype='float32')
+    """Generate embeddings using local Ollama"""
+    try:
+        response = ollama.embeddings(
+            model="nomic-embed-text",
+            prompt=txt
+        )
+        return np.array(response["embedding"], dtype='float32')
+    except Exception as e:
+        print(f"❌ Error generating embedding: {e}")
+        raise
+
 
 passages = []
 vectors = []
 
-# Récupère tous les fichiers Markdown
+# Get all Markdown files
 md_files = list(pathlib.Path(DOC_DIR).glob('*.md'))
 
-# Compte total de chunks pour afficher une barre de progression plus fine
+if not md_files:
+    print(f"❌ No markdown files found in {DOC_DIR}")
+    sys.exit(1)
+
+print(f"📁 Found {len(md_files)} markdown files")
+
+# Count total chunks for progress bar
 total_chunks = 0
 for md in md_files:
     contents = md.read_text(encoding='utf-8', errors='ignore')
     total_chunks += len(textwrap.wrap(contents, width=512))
 
-# Barre de progression
-with tqdm(total=total_chunks, desc="Embedding Markdown Chunks", unit="chunk") as pbar:
+print(f"📊 Processing {total_chunks} total chunks...")
+
+# Progress bar for embedding
+with tqdm(total=total_chunks, desc="🔍 Embedding Markdown Chunks", unit="chunk") as pbar:
     for md in md_files:
         contents = md.read_text(encoding='utf-8', errors='ignore')
-        for chunk in textwrap.wrap(contents, width=512):
+        chunks = textwrap.wrap(contents, width=512)
+
+        for chunk in chunks:
+            if len(chunk.strip()) < 20:  # Skip very short chunks
+                pbar.update(1)
+                continue
+
             pid = len(passages)
-            passages.append({'id': pid, 'text': chunk, 'src': md.name})
-            vectors.append(emb(chunk))
+            passages.append({
+                'id': pid,
+                'text': chunk.strip(),
+                'src': md.name,
+                'file_path': str(md)
+            })
+
+            try:
+                vectors.append(emb(chunk))
+            except Exception as e:
+                print(f"❌ Failed to embed chunk from {md.name}: {e}")
+                passages.pop()  # Remove the passage if embedding fails
+
             pbar.update(1)
 
+if not vectors:
+    print("❌ No embeddings were generated successfully")
+    sys.exit(1)
+
+# Create FAISS index
+print("🔧 Creating FAISS index...")
 mat = np.vstack(vectors)
 index = faiss.IndexFlatIP(mat.shape[1])
 faiss.normalize_L2(mat)
 index.add(mat)
-faiss.write_index(index, IDX_OUT)
-json.dump(passages, open(TEXT_OUT, 'w', encoding='utf-8'))
 
-print(f'✅ Indexed {len(passages)} chunks → {IDX_OUT}')
+# Save files
+faiss.write_index(index, IDX_OUT)
+with open(TEXT_OUT, 'w', encoding='utf-8') as f:
+    json.dump(passages, f, ensure_ascii=False, indent=2)
+
+print(f'✅ Successfully indexed {len(passages)} chunks → {IDX_OUT}')
+print(f'📄 Passages saved to: {TEXT_OUT}')

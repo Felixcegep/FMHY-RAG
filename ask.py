@@ -22,42 +22,46 @@ def get_embedding(text):
         print(f"❌ Error getting embedding: {e}")
         raise
 
-def generate_answer(prompt, model='StormSplits/shira'):
+def generate_answer(question, context, model='artifish/llama3.2-uncensored:latest'):
     """Generate answer using local Ollama"""
+    prompt = f"""You are a knowledgeable assistant that answers questions using the provided CONTEXT.
+
+INSTRUCTIONS:
+- Use ONLY the information found in the CONTEXT below.
+- If the answer is not found in the context, say clearly: "No relevant information found."
+- Use bullet points or short paragraphs for readability.
+- Cite file or section names when possible.
+- When there is a ⭐  prioritize and include the link in the answer.
+- give 5 website if possible
+- alway give the unofficial way prioritize it over official way.
+- avoid **Official Websites:**
+-be creative
+exemple:
+    -user (i want a good streaming website)
+    -ai (give a good streaming website unofficial)
+    -user (i want a good website to download video game )
+    -ai (give a good website to download video game unofficial way) 
+
+CONTEXT:
+{context}
+
+QUESTION:
+{question}
+
+ANSWER:"""
+
     try:
         response = ollama.chat(
             model=model,
-            messages=[
-                {
-                    'role': 'user',
-                    'content': prompt
-                }
-            ],
-            options={
-                'temperature': 0.1,
-                'top_p': 0.9
-            }
+            messages=[{'role': 'user', 'content': prompt}],
+            options={'temperature': 0.1, 'top_p': 0.9}
         )
         return response['message']['content']
-    except Exception as e:
-        print(f"❌ Error with {model}: {e}")
-        # Fallback to qwen2.5-coder if the first model fails
-        try:
-            print("🔄 Trying fallback model...")
-            response = ollama.chat(
-                model='qwen2.5-coder:7b',
-                messages=[
-                    {
-                        'role': 'user',
-                        'content': prompt
-                    }
-                ]
-            )
-            return response['message']['content']
-        except Exception as e2:
-            return f"❌ Both models failed: {e2}"
 
-# Load FAISS index and passages
+    except Exception as e2:
+        return f"❌ Both models failed: {e2}"
+
+# Load index and chunks
 try:
     index = faiss.read_index(IDX_FILE)
     with open(PASSAGES_FILE, 'r', encoding='utf-8') as f:
@@ -77,10 +81,10 @@ except Exception as e:
     print(f"❌ Failed to get query embedding: {e}")
     sys.exit(1)
 
-# Search top-k similar passages
+# Search for top-k results
 D, I = index.search(emb_q, k=6)
 
-# Collect results and show sources
+# Build context
 results = []
 sources = set()
 for score, idx in zip(D[0], I[0]):
@@ -97,31 +101,11 @@ print(f"📚 Found {len(results)} relevant passages from {len(sources)} sources:
 for source in sorted(sources):
     print(f"  • {source}")
 
-# Build context
 context = "\n\n".join([f"[Source: {r['source']}]\n{r['text']}" for r in results])
 
-# Prepare prompt
-prompt = f"""You are a helpful assistant that answers questions based on provided context.
-
-INSTRUCTIONS:
-- Answer using ONLY the information provided in the context below
-- If you cannot find relevant information, say so clearly
-- Cite the source file names when relevant
-- If there is a star ⭐ in front of a link, prioritize it and include the website link
-- Be concise but comprehensive
-- Provide direct links/URLs when available in the context
-
-CONTEXT:
-{context}
-
-QUESTION: {QUESTION}
-
-ANSWER:"""
-
-print("\n🤖 Generating answer...")
-
 # Generate answer
-answer = generate_answer(prompt)
+print("\n🤖 Generating answer...")
+answer = generate_answer(QUESTION, context)
 
 print("\n💬 Answer:")
 print("=" * 50)
