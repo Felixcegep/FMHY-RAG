@@ -1,8 +1,3 @@
-Voici le contenu formaté du `README.md`, prêt à être copié directement dans ton dépôt :
-
----
-
-````markdown
 # 🧠 FMHY RAG Assistant
 
 Un assistant **RAG** (Retrieval-Augmented Generation) local basé sur [Ollama](https://ollama.com/) et **FAISS**, conçu pour répondre à des questions à partir de contenus Markdown extraits du site [https://fmhy.net/](https://fmhy.net/).
@@ -13,9 +8,9 @@ Un assistant **RAG** (Retrieval-Augmented Generation) local basé sur [Ollama](h
 
 ### 🧩 Dépendances système
 
-- **Python 3.9+**
-- **[Ollama](https://ollama.com/download)** installé et fonctionnel
-- **jq**, **curl**, **wget** (inclus sur la plupart des distributions Linux/macOS)
+* **Python 3.9+**
+* **[Ollama](https://ollama.com/download)** installé et fonctionnel
+* **jq**, **curl**, **wget** (inclus sur la plupart des distributions Linux/macOS)
 
 ### 📦 Modules Python
 
@@ -23,11 +18,11 @@ Installe les dépendances Python avec :
 
 ```bash
 pip install faiss-cpu numpy tqdm
-````
+```
 
 ---
 
-## 📅 Téléchargement des modèles Ollama
+## 🗕️ Téléchargement des modèles Ollama
 
 Avant toute exécution, télécharge les modèles nécessaires :
 
@@ -45,8 +40,8 @@ ollama run artifish/llama3.2-uncensored
 1. Clone le dépôt :
 
 ```bash
-git clone https://github.com/<ton-user>/<ton-repo>.git
-cd <ton-repo>
+git clone https://github.com/Felixcegep/FMHY-RAG.git
+cd FMHY-RAG
 ```
 
 2. Télécharge les fichiers Markdown :
@@ -123,5 +118,3 @@ $ python ask.py "What are the best sites to download audiobooks?"
 ```
 
 ---
-
-
