@@ -4,11 +4,13 @@ import faiss
 import numpy as np
 import ollama
 
-if len(sys.argv) < 4:
-    print("Usage: python local_ask.py <INDEX_FILE> <PASSAGES_JSON> <QUESTION>")
-    sys.exit(1)
 
-IDX_FILE, PASSAGES_FILE, QUESTION = sys.argv[1], sys.argv[2], sys.argv[3]
+QUESTION = sys.argv[1]
+IDX_FILE = "index.faiss"
+PASSAGES_FILE = "passages.json"
+#DOC_DIR = "./data"
+#IDX_OUT = "index.faiss"
+#TEXT_OUT = "passages.json"
 
 def get_embedding(text):
     """Get embedding using local Ollama"""

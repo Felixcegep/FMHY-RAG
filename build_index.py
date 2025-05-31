@@ -3,12 +3,10 @@ import faiss, numpy as np
 from tqdm import tqdm
 import ollama
 
-if len(sys.argv) < 4:
-    print("Usage: python local_indexer.py <DOC_DIR> <IDX_OUT> <TEXT_OUT>")
-    sys.exit(1)
 
-DOC_DIR, IDX_OUT, TEXT_OUT = sys.argv[1:]
-
+DOC_DIR = "./data"
+IDX_OUT = "index.faiss"
+TEXT_OUT = "passages.json"
 
 def emb(txt):
     """Generate embeddings using local Ollama"""
