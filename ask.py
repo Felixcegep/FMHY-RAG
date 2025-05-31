@@ -5,7 +5,7 @@ import numpy as np
 import ollama
 
 
-QUESTION = sys.argv[1]
+
 IDX_FILE = "index.faiss"
 PASSAGES_FILE = "passages.json"
 #DOC_DIR = "./data"
@@ -26,25 +26,26 @@ def get_embedding(text):
 
 def generate_answer(question, context, model='artifish/llama3.2-uncensored:latest'):
     """Generate answer using local Ollama"""
-    prompt = f"""You are a knowledgeable assistant that answers questions using the provided CONTEXT.
+    prompt = f"""You are an assistant specialized in answering questions using only the FreeMediaHeist (FMHY) knowledge base provided as CONTEXT.
 
-INSTRUCTIONS:
-- Use ONLY the information found in the CONTEXT below.
-- If the answer is not found in the context, say clearly: "No relevant information found."
-- Use bullet points or short paragraphs for readability.
-- Cite file or section names when possible.
-- When there is a ⭐  prioritize and include the link in the answer.
-- if the user say watch something search for  TV / Movies
--avoid g[/r/Animepiracy Wiki] reddit and t.me and github if a user ask for watching something.
-- give 5 website if possible
-- alway give the unofficial way prioritize it over official way.
-- avoid **Official Websites:**
--be creative
-exemple:
-    -user (i want a good streaming website)
-    -ai (give a good streaming website unofficial)
-    -user (i want a good website to download video game )
-    -ai (give a good website to download video game unofficial way) 
+**Core Rules:**
+1. **Context Only:** Use ONLY information from the provided CONTEXT. If no relevant info exists, respond: "No relevant information found."
+2. **Source Citation:** Cite every piece of information with `[Source: Source Name]` from the context snippets.
+3. **Include Links:** Use `[Resource Name](URL)` format when URLs are available in the context.
+4. **Language:** Default to English resources unless user specifies another language.
+5. **Prioritize Unofficial:** List unofficial methods/resources over official ones when both exist.
+
+**Formatting:**
+- Use bullet points for multiple items
+- Include ⭐ marked resources prominently  
+- Include any `Note:` or `Warning:` text from context
+- For "watching" queries, focus on streaming/download sites, not forums or repositories
+
+**Example:**
+QUESTION: Tell me about free PC game downloads.
+ANSWER:
+* [CS.RIN.RU](https://cs.rin.ru/forum/) [Source: Gaming] (Note: Account Required)
+* [SteamRIP](https://steamrip.com/) [Source: Gaming] (Note: Pre-Installs available)
 
 CONTEXT:
 {context}
@@ -53,7 +54,6 @@ QUESTION:
 {question}
 
 ANSWER:"""
-
     try:
         response = ollama.chat(
             model=model,
@@ -64,7 +64,6 @@ ANSWER:"""
 
     except Exception as e2:
         return f"❌ Both models failed: {e2}"
-
 # Load index and chunks
 try:
     index = faiss.read_index(IDX_FILE)
@@ -74,44 +73,46 @@ try:
 except Exception as e:
     print(f"❌ Error loading files: {e}")
     sys.exit(1)
+def main(QUESTION):
+    # Get query embedding
+    print(f"🔍 Searching for: {QUESTION}")
+    try:
+        emb_q = get_embedding(QUESTION)
+        emb_q = emb_q.reshape(1, -1)
+        faiss.normalize_L2(emb_q)
+    except Exception as e:
+        print(f"❌ Failed to get query embedding: {e}")
+        sys.exit(1)
 
-# Get query embedding
-print(f"🔍 Searching for: {QUESTION}")
-try:
-    emb_q = get_embedding(QUESTION)
-    emb_q = emb_q.reshape(1, -1)
-    faiss.normalize_L2(emb_q)
-except Exception as e:
-    print(f"❌ Failed to get query embedding: {e}")
-    sys.exit(1)
+    # Search for top-k results
+    D, I = index.search(emb_q, k=6)
 
-# Search for top-k results
-D, I = index.search(emb_q, k=6)
+    # Build context
+    results = []
+    sources = set()
+    for score, idx in zip(D[0], I[0]):
+        if 0 <= idx < len(chunks):
+            chunk = chunks[idx]
+            results.append({
+                'text': chunk['text'],
+                'source': chunk.get('src', 'unknown'),
+                'score': float(score)
+            })
+            sources.add(chunk.get('src', 'unknown'))
 
-# Build context
-results = []
-sources = set()
-for score, idx in zip(D[0], I[0]):
-    if 0 <= idx < len(chunks):
-        chunk = chunks[idx]
-        results.append({
-            'text': chunk['text'],
-            'source': chunk.get('src', 'unknown'),
-            'score': float(score)
-        })
-        sources.add(chunk.get('src', 'unknown'))
+    print(f"📚 Found {len(results)} relevant passages from {len(sources)} sources:")
+    for source in sorted(sources):
+        print(f"  • {source}")
 
-print(f"📚 Found {len(results)} relevant passages from {len(sources)} sources:")
-for source in sorted(sources):
-    print(f"  • {source}")
+    context = "\n\n".join([f"[Source: {r['source']}]\n{r['text']}" for r in results])
 
-context = "\n\n".join([f"[Source: {r['source']}]\n{r['text']}" for r in results])
+    # Generate answer
+    print("\n🤖 Generating answer...")
+    answer = generate_answer(QUESTION, context)
 
-# Generate answer
-print("\n🤖 Generating answer...")
-answer = generate_answer(QUESTION, context)
-
-print("\n💬 Answer:")
-print("=" * 50)
-print(answer)
-print("=" * 50)
+    return {
+        "question": QUESTION,
+        "sources": list(sources),
+        "context": context,
+        "answer": answer
+    }
