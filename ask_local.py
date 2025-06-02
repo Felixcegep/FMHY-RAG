@@ -2,29 +2,27 @@ import sys
 import json
 import faiss
 import numpy as np
-import ollama
+import google.generativeai as genai
 
-
+genai.configure(api_key="") # You need to put your actual API key here, enclosed in quotes
 
 IDX_FILE = "index.faiss"
 PASSAGES_FILE = "passages.json"
-#DOC_DIR = "./data"
-#IDX_OUT = "index.faiss"
-#TEXT_OUT = "passages.json"
 
 def get_embedding(text):
-    """Get embedding using local Ollama"""
+    """Get embedding using Google Generative AI (Gemini)"""
     try:
-        response = ollama.embeddings(
-            model="nomic-embed-text",
-            prompt=text
+        response = genai.embed_content(
+            model="models/gemini-embedding-exp-03-07",
+            content=text,
+            task_type="semantic_similarity"
         )
-        return np.array(response["embedding"], dtype='float32')
+        return np.array(response['embedding'], dtype='float32')
     except Exception as e:
         print(f"❌ Error getting embedding: {e}")
         raise
 
-def generate_answer(question, context, model='artifish/llama3.2-uncensored:latest'):
+def generate_answer(question, context, model='gemma3:4b'):
     """Generate answer using local Ollama"""
     prompt = f"""You are an assistant specialized in answering questions using only the FreeMediaHeist (FMHY) knowledge base provided as CONTEXT.
 
@@ -55,16 +53,17 @@ QUESTION:
 
 ANSWER:"""
     try:
+        import ollama
         response = ollama.chat(
             model=model,
             messages=[{'role': 'user', 'content': prompt}],
             options={'temperature': 0.1, 'top_p': 0.9}
         )
         return response['message']['content']
-
     except Exception as e2:
-        return f"❌ Both models failed: {e2}"
-# Load index and chunks
+        return f"❌ Model failed: {e2}"
+
+# Load index and passages
 try:
     index = faiss.read_index(IDX_FILE)
     with open(PASSAGES_FILE, 'r', encoding='utf-8') as f:
@@ -73,8 +72,8 @@ try:
 except Exception as e:
     print(f"❌ Error loading files: {e}")
     sys.exit(1)
+
 def main(QUESTION):
-    # Get query embedding
     print(f"🔍 Searching for: {QUESTION}")
     try:
         emb_q = get_embedding(QUESTION)
@@ -84,10 +83,8 @@ def main(QUESTION):
         print(f"❌ Failed to get query embedding: {e}")
         sys.exit(1)
 
-    # Search for top-k results
     D, I = index.search(emb_q, k=6)
 
-    # Build context
     results = []
     sources = set()
     for score, idx in zip(D[0], I[0]):
@@ -106,7 +103,6 @@ def main(QUESTION):
 
     context = "\n\n".join([f"[Source: {r['source']}]\n{r['text']}" for r in results])
 
-    # Generate answer
     print("\n🤖 Generating answer...")
     answer = generate_answer(QUESTION, context)
 
