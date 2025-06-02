@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from ask_local import main
+from ask_google import main
 
 app = Flask(__name__)
 
