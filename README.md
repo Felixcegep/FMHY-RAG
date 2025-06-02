@@ -14,7 +14,7 @@ A simple Retrieval-Augmented Generation (RAG) assistant for searching FMHY docum
 
 **Python packages:**
 ```bash
-pip install faiss-cpu numpy tqdm flask
+pip install faiss-cpu numpy tqdm flask google-generativeai google-api-core
 ```
 
 ---
