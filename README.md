@@ -1,4 +1,5 @@
-# 🧠 FMHY RAG Assistant
+[media pointer="file-service://file-8vSwv3cEB8w6zGMxNYoQ78"]
+so change the README TO INCLUDE THE LOCAL AND GOOGLE VERSIONS # 🧠 FMHY RAG Assistant
 
 Un assistant **RAG** (Retrieval-Augmented Generation) local basé sur [Ollama](https://ollama.com/) et **FAISS**, conçu pour répondre à des questions à partir de contenus Markdown extraits du site [https://fmhy.net/](https://fmhy.net/).
 
