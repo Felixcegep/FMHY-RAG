@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Move to the directory of the script (i.e., pullupdate/)
+# Move to the directory of the script (i.e., update_script/)
 cd "$(dirname "$0")"
 
-# Make sure output goes to ../docs from pullupdate/
+# Make sure output goes to ../docs from update_script/
 mkdir -p ../docs
 
 # Download .md files into ../docs
