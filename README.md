@@ -43,14 +43,14 @@ Make sure Ollama is running before using local scripts.
 ```bash
 git clone https://github.com/Felixcegep/FMHY-RAG.git
 cd FMHY-RAG
-bash setup/download_docs.sh     # get docs
-bash setup/split_all_docs.sh    # split docs into sections
+bash update_script/download_docs.sh     # get docs
+bash update_script/split_all_docs.sh    # split docs into sections
 ```
 
 To update:
 ```bash
-bash setup/download_docs.sh
-bash setup/split_all_docs.sh
+bash update_script/download_docs.sh
+bash update_script/split_all_docs.sh
 python update_rag_local.py      # or update_rag_google.py
 ```
 
@@ -97,7 +97,7 @@ Go to [http://localhost:5000](http://localhost:5000)
 ├── passages.json
 ├── sections/
 ├── docs/
-├── setup/
+├── update_script/
 │   ├── download_docs.sh
 │   └── split_all_docs.sh
 └── README.md
