@@ -1,21 +1,26 @@
-[media pointer="file-service://file-8vSwv3cEB8w6zGMxNYoQ78"]
-so change the README TO INCLUDE THE LOCAL AND GOOGLE VERSIONS # 🧠 FMHY RAG Assistant
+# 🧠 FMHY-RAG Assistant
 
-Un assistant **RAG** (Retrieval-Augmented Generation) local basé sur [Ollama](https://ollama.com/) et **FAISS**, conçu pour répondre à des questions à partir de contenus Markdown extraits du site [https://fmhy.net/](https://fmhy.net/).
+A **RAG** (Retrieval-Augmented Generation) assistant that can run:
+
+- **Locally with Ollama** 🔒  
+- **In the cloud with the Google Gemini API** ☁️  
+
+It uses **FAISS** for semantic indexing of documents extracted from <https://fmhy.net/>.
 
 ---
 
-## ✅ Prérequis
+## ✅ Requirements
 
-### 🧩 Dépendances système
+### 🧩 System Dependencies
 
-* **Python 3.9+**
-* **[Ollama](https://ollama.com/download)** installé et fonctionnel
-* **jq**, **curl**, **wget** (inclus sur la plupart des distributions Linux/macOS)
+| Component               | Description                                                                 |
+|------------------------|-----------------------------------------------------------------------------|
+| **Python ≥ 3.9**        | Python interpreter                                                          |
+| **Ollama**              | _Optional – for local use only_ → <https://ollama.com/download>            |
+| **Google Gemini API key** | _Optional – for cloud usage_                                                |
+| **jq, curl, wget**      | Usually preinstalled on Linux/macOS                                        |
 
-### 📦 Modules Python
-
-Installe les dépendances Python avec :
+### 📦 Python Packages
 
 ```bash
 pip install faiss-cpu numpy tqdm
@@ -23,99 +28,111 @@ pip install faiss-cpu numpy tqdm
 
 ---
 
-## 🗕️ Téléchargement des modèles Ollama
-
-Avant toute exécution, télécharge les modèles nécessaires :
+## 🔄 Download Ollama Models (Local Version)
 
 ```bash
 ollama pull nomic-embed-text
 ollama run artifish/llama3.2-uncensored
 ```
 
-> 🚪 Ouvre Ollama lorsque tu exécutes le programme.
+> 🚪 Make sure Ollama is running before executing local scripts.
 
 ---
 
-## ⚙️ Étapes d'installation et d'exécution
+## ⚙️ Setup & Updates
 
-1. Clone le dépôt :
+1. **Clone the repository**:
 
-```bash
-git clone https://github.com/Felixcegep/FMHY-RAG.git
-cd FMHY-RAG
-```
+   ```bash
+   git clone https://github.com/Felixcegep/FMHY-RAG.git
+   cd FMHY-RAG
+   ```
 
-2. Télécharge les fichiers Markdown :
+2. **Download the Markdown source files**:
 
-* **Linux/macOS** :
+   ```bash
+   bash setup/download_docs.sh
+   ```
 
-```bash
-bash setup/download_docs.sh
-```
+3. **Split the documents into sections**:
 
-* **Windows (PowerShell)** :
+   ```bash
+   bash setup/split_all_docs.sh
+   ```
 
-```powershell
-.\setup\download_docs.ps1
-```
+4. **(Optional) Update later**:
 
-3. Découpe les documents en sections :
-
-* **Linux/macOS** :
-
-```bash
-bash setup/split_all_docs.sh
-```
-
-* **Windows (PowerShell)** :
-
-```powershell
-.\setup\split_all_docs.ps1
-```
-
-4. Construis l'index FAISS :
-
-```bash
-python build_index.py
-```
-
-5. Pose ta question :
-
-```bash
-python ask_local.py "Show me where I can watch Korean dramas."
-```
+   ```bash
+   bash setup/download_docs.sh     # updates the sources
+   bash setup/split_all_docs.sh    # regenerates the sections
+   python update_rag_local.py      # or update_rag_google.py
+   ```
 
 ---
 
-## 📁 Arborescence du projet
+## 🛠️ Build the Index
+
+| Mode                     | Command                        |
+|--------------------------|--------------------------------|
+| **Local (Ollama)**       | `python update_rag_local.py`   |
+| **Cloud (Google Gemini)**| `python update_rag_google.py`  |
+
+---
+
+## ❓ Ask a Question
+
+| Mode       | Example                                                             |
+|------------|---------------------------------------------------------------------|
+| **Local**  | `python ask_local.py "Show me where I can watch Korean dramas."`   |
+| **Cloud**  | `python ask_google.py "Show me where I can watch Korean dramas."`  |
+
+---
+
+## 📁 Project Structure
 
 ```
 .
-├── ask.py                 # Script principal pour poser des questions
-├── build_index.py         # Indexation vectorielle des chunks
-├── index.faiss            # Fichier d'index FAISS
-├── passages.json          # Fichier contenant tous les chunks indexés
-├── sections/              # Fichiers Markdown découpés par sections
+├── app.py
+├── ask_local.py               # Query using local embeddings
+├── ask_google.py              # Query using Google Gemini embeddings
+├── update_rag_local.py        # Builds the FAISS index (local)
+├── update_rag_google.py       # Builds the FAISS index (Google)
+├── index.faiss                # FAISS index
+├── passages.json              # Indexed passages
+├── sections/                  # Markdown chunks
+├── docs/                      # Raw source documents
 ├── setup/
-│   ├── download_docs.sh   # Script Bash de téléchargement
-│   ├── download_docs.ps1  # Script PowerShell de téléchargement
-│   ├── split_all_docs.sh  # Script Bash de découpe
-│   └── split_all_docs.ps1 # Script PowerShell de découpe
-└── docs/                  # Fichiers Markdown d'origine
+│   ├── download_docs.sh
+│   └── split_all_docs.sh
+└── README.md
 ```
 
 ---
 
-## 💬 Exemple d'utilisation
+## 💬 Example Usage
 
 ```bash
 $ python ask_local.py "What are the best sites to download audiobooks?"
-✅ Loaded index with 2945 passages
+✅ Loaded index with 2,945 passages
 🔍 Searching for: What are the best sites to download audiobooks?
 📚 Found 6 relevant passages from 4 sources:
   • Audiobooks_1.md
   • Audiobooks_2.md
-...
+  ...
 ```
 
 ---
+
+## 🔧 Troubleshooting
+
+| Issue                            | Solution                                         |
+|----------------------------------|--------------------------------------------------|
+| `ModuleNotFoundError: faiss`     | Make sure `faiss-cpu` is installed               |
+| `ConnectionError` with Ollama    | Make sure Ollama is running (`ollama run`)       |
+| Irrelevant or no search results  | Re-run `split_all_docs.sh` and `update_rag_*.py` |
+
+---
+
+## 🌐 Helpful Links
+
+- 📚 Source website: [https://fmhy.net](https://fmhy.net/)
