@@ -26,17 +26,6 @@ Set your API key as an environment variable:
 export GOOGLE_API_KEY="your_actual_api_key_here"
 ```
 
-In Python, read it like this:
-```python
-import os
-import sys
-
-API_KEY = os.getenv("GOOGLE_API_KEY")
-if not API_KEY:
-    print("Please set the GOOGLE_API_KEY environment variable")
-    sys.exit(1)
-```
-
 ---
 
 ## Ollama Models (local)
