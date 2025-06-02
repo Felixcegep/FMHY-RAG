@@ -1,154 +1,113 @@
-# 🧠 FMHY-RAG Assistant
+# FMHY-RAG Assistant
 
-A **RAG** (Retrieval-Augmented Generation) assistant that can run:
-
-- **Locally with Ollama** 🔒  
-- **In the cloud with the Google Gemini API** ☁️ (default)  
-- **Via a Flask web app** 🌐  
-
-It uses **FAISS** for semantic indexing of documents extracted from <https://fmhy.net/>.
+A simple Retrieval-Augmented Generation (RAG) assistant for searching FMHY documents using local or cloud models.
 
 ---
 
-## ✅ Requirements
+## Requirements
 
-### 🧩 System Dependencies
+**System:**
+- Python 3.9+
+- Ollama (optional, local only): https://ollama.com/download
+- Google Gemini API key (required for cloud mode)
+- jq, curl, wget (should be preinstalled on Linux/macOS)
 
-| Component                 | Description                                                                 |
-|---------------------------|-----------------------------------------------------------------------------|
-| **Python ≥ 3.9**          | Python interpreter                                                          |
-| **Ollama**                | _Optional – for local use only_ → <https://ollama.com/download>             |
-| **Google Gemini API key** | _Required for cloud usage (default)_                                        |
-| **jq, curl, wget**        | Usually preinstalled on Linux/macOS                                         |
-
-### 📦 Python Packages
-
+**Python packages:**
 ```bash
 pip install faiss-cpu numpy tqdm flask
 ```
 
 ---
 
-## 🔐 Set Up Google Gemini API Key (Default Mode)
+## Google Gemini API Key (cloud mode, default)
 
-1. **Set API key as an environment variable**
+Set your API key as an environment variable:
+```bash
+export GOOGLE_API_KEY="your_actual_api_key_here"
+```
 
-   Open your terminal and run:
+In Python, read it like this:
+```python
+import os
+import sys
 
-   ```bash
-   export GOOGLE_API_KEY="your_actual_api_key_here"
-   ```
-
-   Then, in your Python scripts, read from this variable:
-
-   ```python
-   import os
-   import sys
-
-   API_KEY = os.getenv("GOOGLE_API_KEY")
-   if not API_KEY:
-       print("❌ Please set the GOOGLE_API_KEY environment variable")
-       sys.exit(1)
-   ```
-
-   > _This way, you don’t hardcode the key in your script, which is safer._
+API_KEY = os.getenv("GOOGLE_API_KEY")
+if not API_KEY:
+    print("Please set the GOOGLE_API_KEY environment variable")
+    sys.exit(1)
+```
 
 ---
 
-## 🔄 Download Ollama Models (Local Version)
+## Ollama Models (local)
 
 ```bash
 ollama pull nomic-embed-text
 ollama run artifish/llama3.2-uncensored
 ```
-
-> 🚪 Make sure Ollama is running before executing local scripts.
-
----
-
-## ⚙️ Setup & Updates
-
-1. **Clone the repository**:
-
-   ```bash
-   git clone https://github.com/Felixcegep/FMHY-RAG.git
-   cd FMHY-RAG
-   ```
-
-2. **Download the Markdown source files**:
-
-   ```bash
-   bash setup/download_docs.sh
-   ```
-
-3. **Split the documents into sections**:
-
-   ```bash
-   bash setup/split_all_docs.sh
-   ```
-
-4. **(Optional) Update later**:
-
-   ```bash
-   bash setup/download_docs.sh     # updates the sources
-   bash setup/split_all_docs.sh    # regenerates the sections
-   python update_rag_local.py      # or update_rag_google.py
-   ```
+Make sure Ollama is running before using local scripts.
 
 ---
 
-## 🛠️ Build the Index
+## Setup & Updates
 
-| Mode                      | Command                        |
-|---------------------------|--------------------------------|
-| **Cloud (Google Gemini)** | `python update_rag_google.py`  |
-| **Local (Ollama)**        | `python update_rag_local.py`   |
+```bash
+git clone https://github.com/Felixcegep/FMHY-RAG.git
+cd FMHY-RAG
+bash setup/download_docs.sh     # get docs
+bash setup/split_all_docs.sh    # split docs into sections
+```
 
-> **Note:** Cloud (Google Gemini) is now the default mode.
-
----
-
-## ❓ Ask a Question (CLI)
-
-| Mode       | Example                                                              |
-|------------|----------------------------------------------------------------------|
-| **Cloud**  | `python ask_google.py "Show me where I can watch Korean dramas."`    |
-| **Local**  | `python ask_local.py "Show me where I can watch Korean dramas."`     |
+To update:
+```bash
+bash setup/download_docs.sh
+bash setup/split_all_docs.sh
+python update_rag_local.py      # or update_rag_google.py
+```
 
 ---
 
-## 🌐 Run the Web Interface (Flask)
+## Build the Index
 
-You can also run FMHY-RAG through a simple web app powered by Flask.
-
-1. Make sure the FAISS index and `passages.json` are built.
-
-2. Run the Flask app:
-
-   ```bash
-   python app.py
-   ```
-
-3. Open your browser and go to:  
-   [http://localhost:5000](http://localhost:5000)
-
-> The web app will let you ask questions interactively using the local model.
+| Mode          | Command                       |
+|---------------|------------------------------|
+| Cloud (Gemini)| python update_rag_google.py  |
+| Local (Ollama)| python update_rag_local.py   |
 
 ---
 
-## 📁 Project Structure
+## Ask a Question (CLI)
+
+| Mode   | Example                                                    |
+|--------|------------------------------------------------------------|
+| Cloud  | python ask_google.py "Show me where I can watch K-dramas." |
+| Local  | python ask_local.py "Show me where I can watch K-dramas."  |
+
+---
+
+## Web App (Flask)
+
+Build the FAISS index and passages.json first, then run:
+```bash
+python app.py
+```
+Go to [http://localhost:5000](http://localhost:5000)
+
+---
+
+## Project Structure
 
 ```
 .
-├── app.py                    # Flask web interface
-├── ask_local.py              # Query using local embeddings
-├── ask_google.py             # Query using Google Gemini embeddings (default)
-├── update_rag_local.py       # Builds the FAISS index (local)
-├── update_rag_google.py      # Builds the FAISS index (Google)
-├── index.faiss               # FAISS index
-├── passages.json             # Indexed passages
-├── sections/                 # Markdown chunks
-├── docs/                     # Raw source documents
+├── app.py
+├── ask_local.py
+├── ask_google.py
+├── update_rag_local.py
+├── update_rag_google.py
+├── index.faiss
+├── passages.json
+├── sections/
+├── docs/
 ├── setup/
 │   ├── download_docs.sh
 │   └── split_all_docs.sh
@@ -157,31 +116,26 @@ You can also run FMHY-RAG through a simple web app powered by Flask.
 
 ---
 
-## 💬 Example Usage (CLI)
+## Example (CLI)
 
 ```bash
-$ python ask_google.py "What are the best sites to download audiobooks?"
-✅ Loaded index with 2,945 passages
-🔍 Searching for: What are the best sites to download audiobooks?
-📚 Found 6 relevant passages from 4 sources:
-  • Audiobooks_1.md
-  • Audiobooks_2.md
-  ...
+python ask_google.py "What are the best sites to download audiobooks?"
+# Loads index, searches, and shows relevant passages
 ```
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
-| Issue                            | Solution                                         |
-|----------------------------------|--------------------------------------------------|
-| `ModuleNotFoundError: faiss`     | Make sure `faiss-cpu` is installed               |
-| `ConnectionError` with Ollama    | Make sure Ollama is running (`ollama run`)       |
-| Irrelevant or no search results  | Re-run `split_all_docs.sh` and `update_rag_*.py` |
-| Flask app not loading            | Check that `index.faiss` and `passages.json` exist and are valid |
+| Problem                    | Solution                             |
+|----------------------------|--------------------------------------|
+| faiss not found            | pip install faiss-cpu                |
+| Ollama connection error    | Start Ollama (ollama run ...)        |
+| Bad/no search results      | Re-run split_all_docs.sh & update    |
+| Flask app not loading      | Make sure index.faiss & passages.json exist |
 
 ---
 
-## 🌐 Helpful Links
+## Source
 
-- 📚 Source website: [https://fmhy.net](https://fmhy.net/)
+- https://fmhy.net/
