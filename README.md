@@ -3,7 +3,7 @@
 A **RAG** (Retrieval-Augmented Generation) assistant that can run:
 
 - **Locally with Ollama** 🔒  
-- **In the cloud with the Google Gemini API** ☁️  
+- **In the cloud with the Google Gemini API** ☁️ (default)  
 - **Via a Flask web app** 🌐  
 
 It uses **FAISS** for semantic indexing of documents extracted from <https://fmhy.net/>.
@@ -14,18 +14,44 @@ It uses **FAISS** for semantic indexing of documents extracted from <https://fmh
 
 ### 🧩 System Dependencies
 
-| Component               | Description                                                                 |
-|------------------------|-----------------------------------------------------------------------------|
-| **Python ≥ 3.9**        | Python interpreter                                                          |
-| **Ollama**              | _Optional – for local use only_ → <https://ollama.com/download>            |
-| **Google Gemini API key** | _Optional – for cloud usage_                                                |
-| **jq, curl, wget**      | Usually preinstalled on Linux/macOS                                        |
+| Component                 | Description                                                                 |
+|---------------------------|-----------------------------------------------------------------------------|
+| **Python ≥ 3.9**          | Python interpreter                                                          |
+| **Ollama**                | _Optional – for local use only_ → <https://ollama.com/download>             |
+| **Google Gemini API key** | _Required for cloud usage (default)_                                        |
+| **jq, curl, wget**        | Usually preinstalled on Linux/macOS                                         |
 
 ### 📦 Python Packages
 
 ```bash
 pip install faiss-cpu numpy tqdm flask
 ```
+
+---
+
+## 🔐 Set Up Google Gemini API Key (Default Mode)
+
+1. **Set API key as an environment variable**
+
+   Open your terminal and run:
+
+   ```bash
+   export GOOGLE_API_KEY="your_actual_api_key_here"
+   ```
+
+   Then, in your Python scripts, read from this variable:
+
+   ```python
+   import os
+   import sys
+
+   API_KEY = os.getenv("GOOGLE_API_KEY")
+   if not API_KEY:
+       print("❌ Please set the GOOGLE_API_KEY environment variable")
+       sys.exit(1)
+   ```
+
+   > _This way, you don’t hardcode the key in your script, which is safer._
 
 ---
 
@@ -73,19 +99,21 @@ ollama run artifish/llama3.2-uncensored
 
 ## 🛠️ Build the Index
 
-| Mode                     | Command                        |
-|--------------------------|--------------------------------|
-| **Local (Ollama)**       | `python update_rag_local.py`   |
-| **Cloud (Google Gemini)**| `python update_rag_google.py`  |
+| Mode                      | Command                        |
+|---------------------------|--------------------------------|
+| **Cloud (Google Gemini)** | `python update_rag_google.py`  |
+| **Local (Ollama)**        | `python update_rag_local.py`   |
+
+> **Note:** Cloud (Google Gemini) is now the default mode.
 
 ---
 
 ## ❓ Ask a Question (CLI)
 
-| Mode       | Example                                                             |
-|------------|---------------------------------------------------------------------|
-| **Local**  | `python ask_local.py "Show me where I can watch Korean dramas."`   |
-| **Cloud**  | `python ask_google.py "Show me where I can watch Korean dramas."`  |
+| Mode       | Example                                                              |
+|------------|----------------------------------------------------------------------|
+| **Cloud**  | `python ask_google.py "Show me where I can watch Korean dramas."`    |
+| **Local**  | `python ask_local.py "Show me where I can watch Korean dramas."`     |
 
 ---
 
@@ -114,7 +142,7 @@ You can also run FMHY-RAG through a simple web app powered by Flask.
 .
 ├── app.py                    # Flask web interface
 ├── ask_local.py              # Query using local embeddings
-├── ask_google.py             # Query using Google Gemini embeddings
+├── ask_google.py             # Query using Google Gemini embeddings (default)
 ├── update_rag_local.py       # Builds the FAISS index (local)
 ├── update_rag_google.py      # Builds the FAISS index (Google)
 ├── index.faiss               # FAISS index
@@ -132,7 +160,7 @@ You can also run FMHY-RAG through a simple web app powered by Flask.
 ## 💬 Example Usage (CLI)
 
 ```bash
-$ python ask_local.py "What are the best sites to download audiobooks?"
+$ python ask_google.py "What are the best sites to download audiobooks?"
 ✅ Loaded index with 2,945 passages
 🔍 Searching for: What are the best sites to download audiobooks?
 📚 Found 6 relevant passages from 4 sources:
