@@ -1,112 +1,120 @@
 # 🧠 FMHY RAG Assistant
 
-A local **RAG** (Retrieval-Augmented Generation) assistant built with [Ollama](https://ollama.com/) and **FAISS**, designed to answer questions using Markdown content from [https://fmhy.net/](https://fmhy.net/).
+Un assistant **RAG** (Retrieval-Augmented Generation) local basé sur [Ollama](https://ollama.com/) et **FAISS**, conçu pour répondre à des questions à partir de contenus Markdown extraits du site [https://fmhy.net/](https://fmhy.net/).
 
 ---
 
-## ✅ Requirements
+## ✅ Prérequis
 
-### 🧩 System Dependencies
+### 🧩 Dépendances système
 
-- **Python 3.9+**
-- **[Ollama](https://ollama.com/download)** installed and running
-- **jq**, **curl**, **wget** (usually preinstalled on Linux/macOS)
+* **Python 3.9+**
+* **[Ollama](https://ollama.com/download)** installé et fonctionnel
+* **jq**, **curl**, **wget** (inclus sur la plupart des distributions Linux/macOS)
 
-### 📦 Python Packages
+### 📦 Modules Python
 
-Install the required Python dependencies:
+Installe les dépendances Python avec :
 
 ```bash
-pip install faiss-cpu numpy tqdm flask
+pip install faiss-cpu numpy tqdm
 ```
 
 ---
 
-## 📅 Download Ollama Models
+## 🗕️ Téléchargement des modèles Ollama
 
-Before running the app, download the required models:
+Avant toute exécution, télécharge les modèles nécessaires :
 
 ```bash
 ollama pull nomic-embed-text
 ollama run artifish/llama3.2-uncensored
 ```
 
-> 🚪 Keep **Ollama** running while using the application.
+> 🚪 Ouvre Ollama lorsque tu exécutes le programme.
 
 ---
 
-## ⚙️ Setup & Run
+## ⚙️ Étapes d'installation et d'exécution
 
-1. **Clone the repository:**
+1. Clone le dépôt :
 
 ```bash
 git clone https://github.com/Felixcegep/FMHY-RAG.git
 cd FMHY-RAG
 ```
 
-2. **Start the web app immediately:**
+2. Télécharge les fichiers Markdown :
 
-If you already have `index.faiss` and `passages.json`, you can chat right away:
+* **Linux/macOS** :
 
 ```bash
-python app.py
+bash setup/download_docs.sh
 ```
 
-Then go to 👉 [http://localhost:5000](http://localhost:5000) to use the chatbot.
+* **Windows (PowerShell)** :
 
-3. **(Optional) Update the knowledge base:**
-
-If you want to update the source content:
-
-- *Linux/macOS:*
-```bash
-bash pullupdate/download_docs.sh
-bash pullupdate/split_all_docs.sh
-python update_rag.py
-```
-
-- *Windows (PowerShell):*
 ```powershell
-.\pullupdate\download_docs.ps1
-.\pullupdate\split_all_docs.ps1
-python update_rag.py
+.\setup\download_docs.ps1
+```
+
+3. Découpe les documents en sections :
+
+* **Linux/macOS** :
+
+```bash
+bash setup/split_all_docs.sh
+```
+
+* **Windows (PowerShell)** :
+
+```powershell
+.\setup\split_all_docs.ps1
+```
+
+4. Construis l'index FAISS :
+
+```bash
+python build_index.py
+```
+
+5. Pose ta question :
+
+```bash
+python ask_local.py "Show me where I can watch Korean dramas."
 ```
 
 ---
 
-## 📁 Project Structure
+## 📁 Arborescence du projet
 
 ```
 .
-├── app.py                   # Flask app to run the chatbot
-├── ask.py                   # CLI script to query manually
-├── update_rag.py            # Script to build/update the FAISS index
-├── index.faiss              # FAISS index file
-├── passages.json            # All embedded chunks stored here
-├── sections/                # Markdown files split into sections
-├── templates/
-│   └── index.html           # Web interface template
-├── pullupdate/
-│   ├── download_docs.sh     # Bash script to fetch Markdown content
-│   ├── download_docs.ps1    # PowerShell equivalent
-│   ├── split_all_docs.sh    # Bash script to chunk documents
-│   └── split_all_docs.ps1   # PowerShell equivalent
-└── docs/                    # Original Markdown documents
+├── ask.py                 # Script principal pour poser des questions
+├── build_index.py         # Indexation vectorielle des chunks
+├── index.faiss            # Fichier d'index FAISS
+├── passages.json          # Fichier contenant tous les chunks indexés
+├── sections/              # Fichiers Markdown découpés par sections
+├── setup/
+│   ├── download_docs.sh   # Script Bash de téléchargement
+│   ├── download_docs.ps1  # Script PowerShell de téléchargement
+│   ├── split_all_docs.sh  # Script Bash de découpe
+│   └── split_all_docs.ps1 # Script PowerShell de découpe
+└── docs/                  # Fichiers Markdown d'origine
 ```
 
 ---
 
-## 💬 Example Usage
+## 💬 Exemple d'utilisation
 
 ```bash
-python app.py
+$ python ask_local.py "What are the best sites to download audiobooks?"
+✅ Loaded index with 2945 passages
+🔍 Searching for: What are the best sites to download audiobooks?
+📚 Found 6 relevant passages from 4 sources:
+  • Audiobooks_1.md
+  • Audiobooks_2.md
+...
 ```
 
-→ Then ask your questions in the browser UI, like:  
-**"Where can I watch Korean dramas?"**
-
 ---
-
-## 🔗 Credits
-
-Content based on [https://fmhy.net/](https://fmhy.net/)
