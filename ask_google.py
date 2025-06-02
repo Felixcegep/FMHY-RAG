@@ -4,12 +4,12 @@ import faiss
 import numpy as np
 import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions
+import os
 
 # --- Configuration ---
-API_KEY = ""  # Add your Google API key here
-
+API_KEY = os.getenv("GOOGLE_API_KEY")
 if not API_KEY:
-    print("❌ Please add your Google API key to the API_KEY variable")
+    print("❌ Please set the GOOGLE_API_KEY environment variable")
     sys.exit(1)
 
 genai.configure(api_key=API_KEY)
@@ -173,16 +173,8 @@ def main(question):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python ask_google.py <your question>")
-        print("Examples:")
-        print("  python ask_google.py 'website to watch anime in english'")
-        print("  python ask_google.py 'free streaming sites'")
-        print("  python ask_google.py 'torrent sites'")
-        print("  python ask_google.py 'how to download games'")
-    else:
-        question = " ".join(sys.argv[1:])
-        result = main(question)
-        if result:
-            print(f"\nAnswer: {result['answer']}")
-            print(f"Sources: {result['sources']}")
+    question = input("entrez votre question")
+    result = main(question)
+    if result:
+        print(f"\nAnswer: {result['answer']}")
+        print(f"Sources: {result['sources']}")

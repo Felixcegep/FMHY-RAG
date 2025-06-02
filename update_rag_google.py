@@ -8,13 +8,15 @@ import faiss
 from tqdm import tqdm
 import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions
+import os
 
 # --- Configuration ---
-API_KEY = ""  # Add your Google API key here
 
+API_KEY = os.getenv("GOOGLE_API_KEY")
 if not API_KEY:
-    print("❌ Please add your Google API key to the API_KEY variable")
+    print("❌ Please set the GOOGLE_API_KEY environment variable")
     sys.exit(1)
+
 
 genai.configure(api_key=API_KEY)
 
