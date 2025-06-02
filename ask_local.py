@@ -2,24 +2,24 @@ import sys
 import json
 import faiss
 import numpy as np
-import google.generativeai as genai
-
-genai.configure(api_key="") # You need to put your actual API key here, enclosed in quotes
-
 IDX_FILE = "index.faiss"
 PASSAGES_FILE = "passages.json"
-
-def get_embedding(text):
-    """Get embedding using Google Generative AI (Gemini)"""
+# TODO ADD LOCAL
+def get_embedding(text, model_name='nomic-embed-text'):
+    """
+    Get embedding using a local Ollama embedding model.
+    Default model: 'nomic-embed-text'.
+    """
     try:
-        response = genai.embed_content(
-            model="models/gemini-embedding-exp-03-07",
-            content=text,
-            task_type="semantic_similarity"
+        import ollama
+        import numpy as np
+        response = ollama.embeddings(
+            model=model_name,
+            prompt=text,
         )
         return np.array(response['embedding'], dtype='float32')
     except Exception as e:
-        print(f"❌ Error getting embedding: {e}")
+        print(f"❌ Error getting embedding from Ollama: {e}")
         raise
 
 def generate_answer(question, context, model='gemma3:4b'):
