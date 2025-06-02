@@ -4,6 +4,7 @@ A **RAG** (Retrieval-Augmented Generation) assistant that can run:
 
 - **Locally with Ollama** 🔒  
 - **In the cloud with the Google Gemini API** ☁️  
+- **Via a Flask web app** 🌐  
 
 It uses **FAISS** for semantic indexing of documents extracted from <https://fmhy.net/>.
 
@@ -23,7 +24,7 @@ It uses **FAISS** for semantic indexing of documents extracted from <https://fmh
 ### 📦 Python Packages
 
 ```bash
-pip install faiss-cpu numpy tqdm
+pip install faiss-cpu numpy tqdm flask
 ```
 
 ---
@@ -79,7 +80,7 @@ ollama run artifish/llama3.2-uncensored
 
 ---
 
-## ❓ Ask a Question
+## ❓ Ask a Question (CLI)
 
 | Mode       | Example                                                             |
 |------------|---------------------------------------------------------------------|
@@ -88,19 +89,38 @@ ollama run artifish/llama3.2-uncensored
 
 ---
 
+## 🌐 Run the Web Interface (Flask)
+
+You can also run FMHY-RAG through a simple web app powered by Flask.
+
+1. Make sure the FAISS index and `passages.json` are built.
+
+2. Run the Flask app:
+
+   ```bash
+   python app.py
+   ```
+
+3. Open your browser and go to:  
+   [http://localhost:5000](http://localhost:5000)
+
+> The web app will let you ask questions interactively using the local model.
+
+---
+
 ## 📁 Project Structure
 
 ```
 .
-├── app.py
-├── ask_local.py               # Query using local embeddings
-├── ask_google.py              # Query using Google Gemini embeddings
-├── update_rag_local.py        # Builds the FAISS index (local)
-├── update_rag_google.py       # Builds the FAISS index (Google)
-├── index.faiss                # FAISS index
-├── passages.json              # Indexed passages
-├── sections/                  # Markdown chunks
-├── docs/                      # Raw source documents
+├── app.py                    # Flask web interface
+├── ask_local.py              # Query using local embeddings
+├── ask_google.py             # Query using Google Gemini embeddings
+├── update_rag_local.py       # Builds the FAISS index (local)
+├── update_rag_google.py      # Builds the FAISS index (Google)
+├── index.faiss               # FAISS index
+├── passages.json             # Indexed passages
+├── sections/                 # Markdown chunks
+├── docs/                     # Raw source documents
 ├── setup/
 │   ├── download_docs.sh
 │   └── split_all_docs.sh
@@ -109,7 +129,7 @@ ollama run artifish/llama3.2-uncensored
 
 ---
 
-## 💬 Example Usage
+## 💬 Example Usage (CLI)
 
 ```bash
 $ python ask_local.py "What are the best sites to download audiobooks?"
@@ -130,6 +150,7 @@ $ python ask_local.py "What are the best sites to download audiobooks?"
 | `ModuleNotFoundError: faiss`     | Make sure `faiss-cpu` is installed               |
 | `ConnectionError` with Ollama    | Make sure Ollama is running (`ollama run`)       |
 | Irrelevant or no search results  | Re-run `split_all_docs.sh` and `update_rag_*.py` |
+| Flask app not loading            | Check that `index.faiss` and `passages.json` exist and are valid |
 
 ---
 
