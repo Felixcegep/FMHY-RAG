@@ -4,21 +4,10 @@ GitHub: https://github.com/fmhy/FMHY
 
 ## What is FMHY?
 
-**FMHY: A curated guide to free, open, and private digital content.**
+FMHY: A curated guide to free, open, and private digital content.
 
 This project turns FMHY into a searchable knowledge base powered by Google Gemini and FAISS.
 
----
-
-## Features
-
-- Vector-based document search with FAISS  
-- Conversational AI interface using Google Gemini  
-- Preloaded FMHY knowledge base  
-- Simple CLI for querying or updating the database  
-- API key managed via environment variables
-
----
 
 ## Requirements
 
@@ -47,22 +36,22 @@ pip install -r requirements.txt
 
 Create a `.env` file in the root directory:
 
-```ini
+```env
 GEMINI_API_KEY="your_gemini_api_key"
 ```
 
 How to get your key:
 
-1. Go to [Google AI Studio](https://aistudio.google.com/)
-2. Sign in with your Google account
-3. Create an API key
-4. Paste it into `.env`
+- Go to [Google AI Studio](https://aistudio.google.com/)
+- Sign in with your Google account
+- Create an API key
+- Paste it into `.env`
 
 ---
 
 ## Usage
 
-### Run the chatbot
+### Run the chatbot (CLI)
 
 ```bash
 python query_faiss.py
@@ -70,7 +59,17 @@ python query_faiss.py
 
 Starts a conversational interface using the existing vector index (`index.faiss`) and metadata.
 
-### Update the vector database (optional)
+### Run the web interface (Flask)
+
+```bash
+python app.py
+```
+
+Launches a local web interface to interact with the RAG system in your browser.
+
+---
+
+## Update the vector database (optional)
 
 If you've added or changed Markdown files:
 
@@ -98,8 +97,8 @@ Flask
 
 ## Models Used
 
-* `text-embedding-004` — for vector embeddings  
-* `gemini-1.5-flash` — low-cost, fast generation
+- `text-embedding-004` — for vector embeddings  
+- `gemini-1.5-flash` — low-cost, fast generation  
 
 These models are accessible for free using a default Gemini developer API key.
 
@@ -107,17 +106,12 @@ These models are accessible for free using a default Gemini developer API key.
 
 ## Credits
 
-Based on FMHY: [https://github.com/fmhy/FMHY](https://github.com/fmhy/FMHY)  
-Vector RAG implementation by you.
+- Based on FMHY: https://github.com/fmhy/FMHY  
+- Vector RAG implementation by you.
 
 ---
 
 ## Next Update
 
-The next version will include **efficient reindexing**, allowing the system to:
-
-* Detect which files have changed  
-* Avoid re-embedding unchanged content  
-* Rebuild only the necessary parts of the FAISS index
-
-This will dramatically reduce update time and improve scalability.
+The next version will include efficient reindexing, allowing the system to:
+discord bot ?
