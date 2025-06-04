@@ -114,9 +114,4 @@ These models are accessible for free using a default Gemini developer API key.
 ## Next Update
 
 The next version will include efficient reindexing, allowing the system to:
-
-- Detect which files have changed  
-- Avoid re-embedding unchanged content  
-- Rebuild only the necessary parts of the FAISS index  
-
-This will dramatically reduce update time and improve scalability.
+discord bot ?
