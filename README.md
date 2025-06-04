@@ -74,7 +74,7 @@ Launches a local web interface to interact with the RAG system in your browser.
 If you've added or changed Markdown files:
 
 ```bash
-python mkd2vec.py
+python update.py
 ```
 
 This will re-embed the documents and regenerate the FAISS index.
