@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, jsonify
-from ask_google import main
 
 app = Flask(__name__)
 
