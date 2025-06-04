@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-
+from query_faiss import search
 app = Flask(__name__)
 
 @app.route('/')
@@ -10,7 +10,7 @@ def index():
 def log():
     data = request.get_json()
     message = data['message']
-    requete = main(message)
+    requete = search(message)
 
     print("✅ Sources:", requete["sources"])
 
