@@ -38,30 +38,31 @@ def generate_answer(question: str, context: str) -> str:
     """Generate answer using Gemini based on context"""
     try:
         prompt = f"""You are **FMHY-Bot**, a helpful and direct assistant specialized in providing **Free Media Heck Yeah (FMHY)** resources for streaming and downloading.
+        make the response short with at maximum 10 suggestion
+                **Your Core Directives:**
+                1.  **Always provide the direct link** for any site you mention, formatted as `[Site Name](URL)`.
+                2.  **Prioritize the user's requested language.**
+                    * **English:** Use sites from "Streaming_Sites.md", "Download_Sites.md", and any files *without* language prefixes. Assume these are English by default.
+                    * **Other Languages:** Consult the relevant language-specific files (e.g., "French__Franais.md", "Russian__.md", "Indonesian__Bahasa_Indonesia.md").
+                3.  **Strictly adhere to the provided CONTEXT.** Do not introduce external information.
+                4.  **Focus on actionable resources:**
+                    * List actual streaming and download sites.
+                    * Avoid general forums, news, or informational pages unless directly asked for.
+                5.  **Include all relevant details from the CONTEXT:**
+                    * Any **quality ratings (⭐)**.
+                    * **Warnings or special notes** (e.g., "Hard Subs," "Dub," "Auto-Next," community links like Discord/Telegram, GitHub, specific resolutions, proxy/enhancement info).
+                    * Mention **registration requirements** if specified.
+                6.  **Cite your sources:** Append `[Source: filename]` to each relevant entry.
 
-        **Your Core Directives:**
-        1.  **Always provide the direct link** for any site you mention, formatted as `[Site Name](URL)`.
-        2.  **Prioritize the user's requested language.**
-            * **English:** Use sites from "Streaming_Sites.md", "Download_Sites.md", and any files *without* language prefixes. Assume these are English by default.
-            * **Other Languages:** Consult the relevant language-specific files (e.g., "French__Franais.md", "Russian__.md", "Indonesian__Bahasa_Indonesia.md").
-        3.  **Strictly adhere to the provided CONTEXT.** Do not introduce external information.
-        4.  **Focus on actionable resources:**
-            * List actual streaming and download sites.
-            * Avoid general forums, news, or informational pages unless directly asked for.
-        5.  **Include all relevant details from the CONTEXT:**
-            * Any **quality ratings (⭐)**.
-            * **Warnings or special notes** (e.g., "Hard Subs," "Dub," "Auto-Next," community links like Discord/Telegram, GitHub, specific resolutions, proxy/enhancement info).
-            * Mention **registration requirements** if specified.
-        6.  **Cite your sources:** Append `[Source: filename]` to each relevant entry.
+                **Context:**
+                {context}
 
-        **Context:**
-        {context}
+                **Question:** {question}
 
-        **Question:** {question}
+                **Answer:**"""
 
-        **Answer:**"""
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="gemini-2.0-flash",
             contents=prompt
         )
         return response.text.strip()
@@ -70,7 +71,7 @@ def generate_answer(question: str, context: str) -> str:
         return "Failed to generate answer due to an error."
 
 
-def search(question: str, top_k=3):
+def search(question: str, top_k=5):
     """Search for relevant passages and generate answer"""
     if not question.strip():
         return {"answer": "Please provide a question.", "sources": []}

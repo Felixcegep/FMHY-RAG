@@ -15,32 +15,65 @@ load_dotenv()
 API_KEY = os.getenv("GEMINI_API_KEY")
 client = genai.Client(api_key=API_KEY)
 
+import re
+import hashlib
+
 
 def couper_bien(markdown_str):
-    top_level_matches = list(re.finditer(r'^# (.+?)\n', markdown_str, re.MULTILINE))
+    top_level_matches = list(re.finditer(r'^# (.+?)$', markdown_str, re.MULTILINE))
     subsections = []
 
     for i, match in enumerate(top_level_matches):
         parent_title = match.group(1).strip()
-        start = match.end()
+        start = match.start()
         end = top_level_matches[i + 1].start() if i + 1 < len(top_level_matches) else len(markdown_str)
-        section_block = markdown_str[start:end].strip()
+        full_section = markdown_str[start:end].strip()
 
-        # Step 2: Find all ## inside this top-level section
-        sub_matches = list(re.finditer(r'^## (.+?)\n', section_block, re.MULTILINE))
+        # Remove the main header line to get content
+        content_start = full_section.find('\n') + 1
+        section_content = full_section[content_start:] if content_start > 0 else ""
 
-        for j, sub_match in enumerate(sub_matches):
-            sub_title = sub_match.group(1).strip()
-            sub_start = sub_match.end()
-            sub_end = sub_matches[j + 1].start() if j + 1 < len(sub_matches) else len(section_block)
-            text = section_block[sub_start:sub_end].strip()
+        # Find all ## subsections
+        sub_matches = list(re.finditer(r'^## (.+?)$', section_content, re.MULTILINE))
 
-            subsections.append({
-                "title": parent_title,
-                "section": sub_title,
-                "text": text,
-                "hashtext": hashlib.sha256(text.encode()).hexdigest()
-            })
+        if sub_matches:
+            # Get content before first ## subsection
+            first_sub_start = sub_matches[0].start()
+            main_content = section_content[:first_sub_start].strip()
+
+            # Add main content if it exists and is substantial
+            if main_content and len(main_content) > 10:  # Avoid adding just "***" or empty content
+                subsections.append({
+                    "title": parent_title,
+                    "section": parent_title,  # Use parent title as section name
+                    "text": main_content,
+                    "hashtext": hashlib.sha256(main_content.encode()).hexdigest()
+                })
+
+            # Process each ## subsection
+            for j, sub_match in enumerate(sub_matches):
+                sub_title = sub_match.group(1).strip()
+                sub_start = sub_match.end() + 1  # Skip the newline after the header
+                sub_end = sub_matches[j + 1].start() if j + 1 < len(sub_matches) else len(section_content)
+                text = section_content[sub_start:sub_end].strip()
+
+                # Only add if there's substantial content
+                if text and len(text) > 10:
+                    subsections.append({
+                        "title": parent_title,
+                        "section": sub_title,
+                        "text": text,
+                        "hashtext": hashlib.sha256(text.encode()).hexdigest()
+                    })
+        else:
+            # No ## subsections, treat entire content as one section
+            if section_content and len(section_content) > 10:
+                subsections.append({
+                    "title": parent_title,
+                    "section": parent_title,
+                    "text": section_content,
+                    "hashtext": hashlib.sha256(section_content.encode()).hexdigest()
+                })
 
     return subsections
 
@@ -79,7 +112,7 @@ if __name__ == '__main__':
     delay_between_requests = 60.0 / requests_per_minute
 
     for i, test in enumerate(tqdm(data_bien, desc="🔍 Embedding sections")):
-        print(f"Processing {test['section']}, length: {len(test['text'])}, hash: {test['hashtext']}")
+        print(f"Processing {test['title']} {test['section']}", {test['text']})
 
         try:
             embedding = embed_with_retry(client, test["text"])
