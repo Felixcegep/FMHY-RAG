@@ -1,4 +1,7 @@
-flask
+tqdm
 faiss-cpu
 numpy
-google-genai
+requests
+google-generativeai
+python-dotenv
+Flask
