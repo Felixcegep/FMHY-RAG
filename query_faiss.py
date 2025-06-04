@@ -141,7 +141,7 @@ def search(question: str, top_k=3):
 
 # === Entry Point ===
 if __name__ == '__main__':
-    question = "i want to watch anime in english?"
+    question = input("enter your question: ")
     result = search(question)
     print("longueur source", len(result))
     print("-----------------------")
