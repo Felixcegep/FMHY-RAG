@@ -1,13 +1,10 @@
-````markdown
 # FMHY RAG
 
 GitHub: https://github.com/fmhy/FMHY
 
 ## What is FMHY?
 
-FMHY (Free Media Heck Yeah) is a community-curated resource hub that shares guides, links, and tools for accessing digital content—like movies, TV shows, books, software, and educational material. It emphasizes free, open-source, and privacy-respecting solutions.
-
-In short: **FMHY is a digital survival kit—a well-organized guide to free content, tools, and tips for navigating the internet freely and privately.**
+**FMHY: A curated guide to free, open, and private digital content.**
 
 This project turns FMHY into a searchable knowledge base powered by Google Gemini and FAISS.
 
@@ -38,7 +35,7 @@ This project turns FMHY into a searchable knowledge base powered by Google Gemin
 ```bash
 git clone <your-repo-url>
 cd <project-name>
-````
+```
 
 ### 2. Install dependencies
 
@@ -101,7 +98,7 @@ Flask
 
 ## Models Used
 
-* `text-embedding-004` — for vector embeddings
+* `text-embedding-004` — for vector embeddings  
 * `gemini-1.5-flash` — low-cost, fast generation
 
 These models are accessible for free using a default Gemini developer API key.
@@ -110,7 +107,7 @@ These models are accessible for free using a default Gemini developer API key.
 
 ## Credits
 
-Based on FMHY: [https://github.com/fmhy/FMHY](https://github.com/fmhy/FMHY)
+Based on FMHY: [https://github.com/fmhy/FMHY](https://github.com/fmhy/FMHY)  
 Vector RAG implementation by you.
 
 ---
@@ -119,11 +116,8 @@ Vector RAG implementation by you.
 
 The next version will include **efficient reindexing**, allowing the system to:
 
-* Detect which files have changed
-* Avoid re-embedding unchanged content
+* Detect which files have changed  
+* Avoid re-embedding unchanged content  
 * Rebuild only the necessary parts of the FAISS index
 
 This will dramatically reduce update time and improve scalability.
-
-```
-
